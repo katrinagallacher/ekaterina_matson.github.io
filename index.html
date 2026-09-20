@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ekaterina Matson — mechanistic interpretability</title>
+<meta name="description" content="Independent mechanistic interpretability research on user awareness, tokenization, and attractor states in LLMs. Tallinn, Estonia.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Newsreader:ital,opsz,wght@0,6..72,300..600;1,6..72,300..500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+
+    --paper:  #F4F6F3;
+    --panel:  #FFFFFF;
+    --ink:    #15191C;
+    --muted:  #59636B;
+    --rule:   #D6DBD6;
+    --link:   #1C4E68;
+
+    --tok-1:  #FFDFA8;
+    --tok-2:  #BFE0F0;
+    --tok-3:  #DCC9F0;
+    --tok-4:  #C3E5CE;
+    --tok-5:  #F7CBC6;
+    --tok-ink:#15191C;
+
+    --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    --serif: "Newsreader", Georgia, "Times New Roman", serif;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper:  #0F1315;
+      --panel:  #161B1E;
+      --ink:    #E7EAE6;
+      --muted:  #99A3AA;
+      --rule:   #293135;
+      --link:   #8FC6E3;
+      --tok-1:  #E8C48A;
+      --tok-2:  #A2C9DC;
+      --tok-3:  #C2AEDA;
+      --tok-4:  #A8CEB6;
+      --tok-5:  #DBA9A3;
+      --tok-ink:#10161A;
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper:#0F1315; --panel:#161B1E; --ink:#E7EAE6; --muted:#99A3AA;
+    --rule:#293135; --link:#8FC6E3;
+    --tok-1:#E8C48A; --tok-2:#A2C9DC; --tok-3:#C2AEDA; --tok-4:#A8CEB6; --tok-5:#DBA9A3; --tok-ink:#10161A;
+  }
+
+  *, *::before, *::after { box-sizing: inherit; }
+  html { scroll-padding-top: env(safe-area-inset-top, 0px); -webkit-text-size-adjust: 100%; }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--serif);
+    font-size: 1.0625rem;
+    line-height: 1.62;
+    font-weight: 380;
+  }
+
+  .wrap {
+    max-width: 44rem;
+    margin: 0 auto;
+    padding: clamp(2.5rem, 7vw, 5.5rem) clamp(1.15rem, 5vw, 2rem) 4rem;
+  }
+
+  a { color: var(--link); text-decoration-thickness: 1px; text-underline-offset: 3px; }
+  a:hover { text-decoration-thickness: 2px; }
+  a:focus-visible, button:focus-visible {
+    outline: 2px solid var(--link); outline-offset: 3px; border-radius: 2px;
+  }
+
+  /* ---------- hero ---------- */
+
+  h1.name {
+    font-family: var(--mono);
+    font-weight: 700;
+    font-size: clamp(2.1rem, 9vw, 3.5rem);
+    line-height: 1.12;
+    letter-spacing: -0.03em;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px;
+  }
+  h1.name .tok {
+    background: var(--bg, transparent);
+    color: var(--tok-ink);
+    padding: 0.06em 0.16em;
+    border-radius: 3px;
+    white-space: pre;
+  }
+  .t1 { --bg: var(--tok-1); }
+  .t2 { --bg: var(--tok-2); }
+  .t3 { --bg: var(--tok-3); }
+  .t4 { --bg: var(--tok-4); }
+  .t5 { --bg: var(--tok-5); }
+
+  @media (prefers-reduced-motion: no-preference) {
+    h1.name .tok {
+      animation: settle 520ms cubic-bezier(.2,.7,.3,1) backwards;
+    }
+    .t1 { animation-delay: 120ms; }
+    .t2 { animation-delay: 240ms; }
+    .t3 { animation-delay: 360ms; }
+    .t4 { animation-delay: 480ms; }
+    .t5 { animation-delay: 600ms; }
+    @keyframes settle {
+      from { background: transparent; color: var(--ink); }
+      to   { background: var(--bg); color: var(--tok-ink); }
+    }
+  }
+
+  .gloss {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    color: var(--muted);
+    margin: 0.9rem 0 0;
+    letter-spacing: 0.01em;
+  }
+
+  .lede {
+    font-size: clamp(1.15rem, 3.4vw, 1.4rem);
+    line-height: 1.48;
+    max-width: 32ch;
+    margin: 1.6rem 0 0;
+    font-weight: 400;
+  }
+  .lede em { font-style: italic; }
+
+  .sub { margin: 1rem 0 0; color: var(--muted); max-width: 58ch; }
+
+  .links {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.35rem;
+    padding: 0;
+    margin: 1.8rem 0 0;
+    font-family: var(--mono);
+    font-size: 0.82rem;
+  }
+
+  /* ---------- sections ---------- */
+
+  section { margin-top: clamp(3.2rem, 9vw, 5rem); }
+
+  h2 {
+    font-family: var(--mono);
+    font-size: 0.85rem;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    color: var(--muted);
+    margin: 0 0 1.6rem;
+    padding-bottom: 0.7rem;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .entry { margin-bottom: 2.4rem; }
+  .entry:last-child { margin-bottom: 0; }
+
+  .entry h3 {
+    font-family: var(--serif);
+    font-size: 1.28rem;
+    font-weight: 500;
+    line-height: 1.3;
+    margin: 0 0 0.15rem;
+    letter-spacing: -0.01em;
+  }
+  .entry h3 a { text-decoration: none; border-bottom: 1px solid var(--rule); color: inherit; }
+  .entry h3 a:hover { border-bottom-color: var(--link); color: var(--link); }
+
+  .status {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    color: var(--muted);
+    margin: 0 0 0.6rem;
+  }
+  .status::before {
+    content: "";
+    display: inline-block;
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--tok-4);
+    margin-right: 0.5rem;
+    vertical-align: 0.1em;
+  }
+  .status.paused::before { background: var(--tok-1); }
+  .status.done::before   { background: var(--rule); }
+
+  .entry p { margin: 0 0 0.55rem; }
+
+  .stack {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    color: var(--muted);
+    margin: 0.5rem 0 0;
+    line-height: 1.7;
+  }
+  .stack span { white-space: nowrap; }
+  .stack span + span::before { content: " / "; color: var(--rule); }
+
+  /* ---------- timeline ---------- */
+
+  .tl { list-style: none; margin: 0; padding: 0; }
+  .tl li {
+    display: grid;
+    grid-template-columns: 6.5rem 1fr;
+    gap: 0 1.6rem;
+  }
+  .tl .yr {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    color: var(--muted);
+    padding-top: 0.28rem;
+    text-align: right;
+  }
+  .tl .ev {
+    position: relative;
+    border-left: 1px solid var(--rule);
+    padding: 0 0 2rem 1.6rem;
+  }
+  .tl li:last-child .ev { border-left-color: transparent; padding-bottom: 0; }
+  .tl .ev::before {
+    content: "";
+    position: absolute;
+    left: -4.5px;
+    top: 0.55rem;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--paper);
+    border: 1px solid var(--muted);
+  }
+  .tl li.mark .ev::before { background: var(--tok-3); border-color: var(--tok-3); }
+  .tl h3 {
+    font-family: var(--serif);
+    font-size: 1.1rem;
+    font-weight: 500;
+    line-height: 1.35;
+    margin: 0;
+  }
+  .tl .where { color: var(--muted); font-weight: 400; }
+  .tl p { margin: 0.25rem 0 0; color: var(--muted); font-size: 0.97rem; }
+
+  @media (max-width: 34rem) {
+    .tl li { grid-template-columns: 1fr; gap: 0; }
+    .tl .yr { text-align: left; padding: 0 0 0.2rem 1.6rem; }
+    .tl .ev { padding-top: 0.1rem; }
+    .tl .ev::before { top: -1.3rem; }
+  }
+
+  /* ---------- footer ---------- */
+
+  footer {
+    margin-top: clamp(3.5rem, 9vw, 5rem);
+    padding-top: 1.2rem;
+    border-top: 1px solid var(--rule);
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    color: var(--muted);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem 1.5rem;
+    justify-content: space-between;
+  }
+
+  .todo {
+    background: var(--tok-1);
+    color: #15191C;
+    padding: 0 0.3em;
+    border-radius: 2px;
+    font-family: var(--mono);
+    font-size: 0.82em;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <h1 class="name"><span class="tok t1">Ek</span><span class="tok t2">ater</span><span class="tok t3">ina</span><span class="tok t4"> Mat</span><span class="tok t5">son</span></h1>
+    <p class="gloss">Five tokens. The space belongs to the surname.</p>
+
+    <p class="lede">I do mechanistic interpretability research, mostly on the things models notice that nobody asked them to notice.</p>
+
+    <p class="sub">Independent researcher in Tallinn, Estonia. Senior analyst by day, linguist by training. My work sits where tokenization, identity, and evaluation awareness meet — the places where a model's behaviour turns on something below the level of the prompt.</p>
+
+    <ul class="links">
+      <li><a href="https://x.com/future_surveyor">X / @future_surveyor</a></li>
+      <li><a href="#medium">Medium <span class="todo">add URL</span></a></li>
+      <li><a href="#github">GitHub <span class="todo">add URL</span></a></li>
+      <li><a href="#email">Email <span class="todo">add</span></a></li>
+    </ul>
+  </header>
+
+  <section id="research">
+    <h2>Current research</h2>
+
+    <div class="entry">
+      <h3>User awareness in frontier models</h3>
+      <p class="status">Active — BlueDot project course, extending Transluce's Aug 2026 work</p>
+      <p>Models infer who they are talking to and change their behaviour accordingly. Transluce documented the effect; I am asking two further questions: which inferred identities move a model toward or away from misaligned behaviour on a real safety eval, and what the mechanism looks like inside the network.</p>
+      <p>A pilot confirms the effect reproduces on the borderline-requests arm (OR-Bench hard-1k) in Qwen3-32B. Next is a less subtle safety benchmark across the full persona roster, compared using Transluce's statistical method, then the mechanistic substrate: layers, features, circuits.</p>
+      <p class="stack"><span>Qwen3.6-27B (J-Lens)</span><span>Gemma-2-9B-IT (Gemma Scope SAEs)</span><span>OR-Bench</span><span>system-prompt identity conditioning</span></p>
+    </div>
+
+    <div class="entry">
+      <h3>Tokenization awareness in Qwen3-4B</h3>
+      <p class="status">Write-up published, code being packaged</p>
+      <p>A feature that tracks when a word has been split into pieces the model has to reassemble. I found it while looking at compound tokens, traced what it responds to, and wrote up what it implies for treating tokenization as a safety surface rather than a preprocessing detail.</p>
+      <p class="stack"><span>Qwen3-4B</span><span>Neuronpedia</span><span>SAE feature analysis</span></p>
+    </div>
+
+    <div class="entry">
+      <h3>Attractor states in paired-model dialogue</h3>
+      <p class="status paused">Pilot complete</p>
+      <p>The spiritual-convergence behaviour reported in Anthropic's Opus 4 system card, reproduced as an experiment rather than an anecdote. I built a pipeline that runs two local models against each other, then extracts and classifies where the conversation lands.</p>
+      <p>Qwen mirrored against Qwen does not drift toward contemplation — it drifts into tutorial mode. Different model, different fixed point, which is the interesting part.</p>
+      <p class="stack"><span>Ollama</span><span>paired-dialogue harness</span><span>seed and framing conditions</span></p>
+    </div>
+
+    <div class="entry">
+      <h3>Morph-aware tokenizers</h3>
+      <p class="status">In progress</p>
+      <p>Whether a tokenizer that respects morpheme boundaries changes what a small transformer learns, compared to standard BPE. A linguist's question asked with an interpretability toolkit, aimed at an NLP venue.</p>
+    </div>
+  </section>
+
+  <section id="built">
+    <h2>Things I have built</h2>
+
+    <div class="entry">
+      <h3>A transformer small enough to read</h3>
+      <p>Roughly two thousand parameters, every real component present, trained on detokenization so that the mechanism it learns is one you can follow end to end. Built for teaching, and for checking my own intuitions about what the big models are doing.</p>
+    </div>
+
+    <div class="entry">
+      <h3>BPE merge tree viewer</h3>
+      <p>A browser tool that shows how Gemma 2 and Qwen 3 arrive at their segmentations, side by side, so you can see where two tokenizers disagree about the same string.</p>
+    </div>
+
+    <div class="entry">
+      <h3>Monthly tokenization digest</h3>
+      <p>A short newsletter tracking new work on tokenization in language models — what came out, and what it changes.</p>
+    </div>
+  </section>
+
+  <section id="background">
+    <h2>Timeline</h2>
+    <ol class="tl">
+      <li class="mark">
+        <div class="yr">2026 →</div>
+        <div class="ev">
+          <h3>AI safety project course <span class="where">BlueDot Impact</span></h3>
+          <p>Accepted after the technical course. Building the user-awareness study as the project.</p>
+        </div>
+      </li>
+      <li class="mark">
+        <div class="yr">2026</div>
+        <div class="ev">
+          <h3>Technical AI Safety course <span class="where">BlueDot Impact</span></h3>
+          <p>Completed. Essay on evaluation awareness; final project on user awareness.</p>
+        </div>
+      </li>
+      <li>
+        <div class="yr">2026</div>
+        <div class="ev">
+          <h3>Tokenization-awareness write-up published</h3>
+          <p>First piece of independent interpretability research out in public, with the notebook behind it.</p>
+        </div>
+      </li>
+      <li>
+        <div class="yr"><span class="todo">year</span></div>
+        <div class="ev">
+          <h3>Microdegree <span class="where">TalTech</span></h3>
+          <p>The bridge from linguistics to running models myself.</p>
+        </div>
+      </li>
+      <li>
+        <div class="yr">2019 →</div>
+        <div class="ev">
+          <h3>Senior analyst <span class="where">fintech</span></h3>
+          <p>Seven years of getting answers out of messy data and defending them to people who act on them.</p>
+        </div>
+      </li>
+      <li>
+        <div class="yr">2018–19</div>
+        <div class="ev">
+          <h3>Doctoral studies <span class="where">University of Tartu</span></h3>
+          <p>One year, then left.</p>
+        </div>
+      </li>
+      <li>
+        <div class="yr">2018</div>
+        <div class="ev">
+          <h3>MA, General and Finno-Ugric Linguistics <span class="where">University of Tartu</span></h3>
+          <p>Thesis on translation as a process, studied with eye-tracking.</p>
+        </div>
+      </li>
+      <li>
+        <div class="yr">Ongoing</div>
+        <div class="ev">
+          <h3>Translator <span class="where">English↔Russian, Estonian↔Russian</span></h3>
+          <p>Agency work. Where the interest in what survives a mapping between representations started.</p>
+        </div>
+      </li>
+    </ol>
+  </section>
+
+  <section id="writing">
+    <h2>Elsewhere</h2>
+    <p class="sub">I write about interpretability, personas, and tokenization on <a href="#medium">Medium <span class="todo">add URL</span></a>, post research notes and occasional fiction on <a href="https://x.com/future_surveyor">X</a>, and keep code on <a href="#github">GitHub <span class="todo">add URL</span></a>.</p>
+  </section>
+
+  <footer>
+    <span>Tallinn, Estonia</span>
+    <span>Open to research collaboration</span>
+  </footer>
+
+</div>
+</body>
+</html>
