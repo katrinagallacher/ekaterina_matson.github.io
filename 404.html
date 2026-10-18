@@ -6,48 +6,50 @@
 <title>Not found — Ekaterina Matson</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Newsreader:opsz,wght@6..72,300..500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;700&family=Space+Mono:wght@400&display=swap" rel="stylesheet">
 <style>
   :root {
     box-sizing: border-box;
     padding-top: env(safe-area-inset-top, 0px);
     padding-bottom: env(safe-area-inset-bottom, 0px);
-    --paper: #F4F6F3; --ink: #15191C; --muted: #59636B; --link: #1C4E68;
-    --tok-2: #BFE0F0; --tok-5: #F7CBC6; --tok-ink: #15191C;
+    --paper:#F4F6F3; --ink:#15191C; --muted:#59636B; --link:#1C4E68; --accent:#5A3E9E;
+    --dot:rgba(21,25,28,0.08);
   }
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
-      --paper: #0F1315; --ink: #E7EAE6; --muted: #99A3AA; --link: #8FC6E3;
-      --tok-2: #A2C9DC; --tok-5: #DBA9A3; --tok-ink: #10161A;
+      --paper:#0F1315; --ink:#E7EAE6; --muted:#99A3AA; --link:#8FC6E3; --accent:#C9B4EE;
+      --dot:rgba(231,234,230,0.055);
     }
   }
   *, *::before, *::after { box-sizing: inherit; }
   html, body { height: 100%; }
   body {
     margin: 0; background: var(--paper); color: var(--ink);
-    font-family: "Newsreader", Georgia, serif; font-size: 1.0625rem; line-height: 1.6;
-    display: flex; align-items: center; justify-content: center;
-    padding: 1.5rem; text-align: left;
+    font-family: "Archivo", Arial, sans-serif; font-size: 1rem; line-height: 1.6;
+    display: flex; align-items: center; justify-content: center; padding: 1.5rem;
+    position: relative; overflow: hidden;
   }
-  .box { max-width: 30rem; }
-  h1 {
-    font-family: "JetBrains Mono", ui-monospace, monospace;
-    font-weight: 700; font-size: clamp(2rem, 8vw, 3rem); letter-spacing: -0.03em;
-    margin: 0; display: flex; gap: 2px; flex-wrap: wrap;
+  body::before {
+    content: ""; position: fixed; inset: 0;
+    background-image: radial-gradient(circle, var(--dot) 1px, transparent 1px);
+    background-size: 26px 26px; pointer-events: none;
   }
-  h1 span { padding: 0.06em 0.16em; border-radius: 3px; color: var(--tok-ink); }
-  .a { background: var(--tok-5); }
-  .b { background: var(--tok-2); }
-  p { color: var(--muted); margin: 1.2rem 0 0; }
-  a { color: var(--link); text-underline-offset: 3px; }
+  .box { position: relative; max-width: 30rem; }
+  h1 { font-weight: 700; font-size: clamp(3rem, 14vw, 6rem); letter-spacing: -0.04em; line-height: 1; margin: 0; }
+  .tag {
+    font-family: "Space Mono", monospace; font-size: 0.78rem;
+    letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); margin: 1rem 0 0;
+  }
+  p.msg { color: var(--muted); margin: 1.1rem 0 0; }
+  a { color: var(--link); text-decoration: none; border-bottom: 1px solid currentColor; }
   a:focus-visible { outline: 2px solid var(--link); outline-offset: 3px; }
 </style>
 </head>
 <body>
   <div class="box">
-    <h1><span class="a">404</span><span class="b">_unk</span></h1>
-    <p>Out-of-vocabulary. Nothing lives at this address.</p>
-    <p><a href="/">Back to the start</a></p>
+    <h1>404</h1>
+    <p class="tag">Out of vocabulary</p>
+    <p class="msg">Nothing lives at this address. <a href="/">Back to the start</a>.</p>
   </div>
 </body>
 </html>
