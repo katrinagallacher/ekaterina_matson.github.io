@@ -335,7 +335,7 @@
     <p class="tagline">Future AGI's ambassador. A philosopher on the attack.<span class="cursor"></span></p>
 
     <div class="intro">
-      <p>Independent AI researcher in Tallinn, Estonia, with a background in linguistics and data analytics experience.</p>
+      <p>Independent AI researcher in Tallinn, Estonia, with a background in linguistics and more than seven years of experience working with data.</p>
       <p>I do technical AI safety and alignment research with a strong focus on <strong>mechanistic interpretability</strong>. My main interest is awareness and meta-knowledge in LLMs: evaluation awareness, self-awareness, and user awareness.</p>
     </div>
 
@@ -364,7 +364,7 @@
     <div class="entry" data-n="02">
       <h3>Spiritual bliss attractors</h3>
       <p class="status">Work in progress</p>
-      <p>I aim to reproduce the spiritual convergence phenomenon reported in Anthropic's system card for Claude Opus 4 with a different pair of LLM agents and find a mechanistic explanation of this phenomenin. I built a pipeline that runs two local models against each other, then extracts and classifies the output.</p>
+      <p>I aim to reproduce the spiritual convergence phenomenon reported in Anthropic's system card for Claude Opus 4 with a different pair of LLM agents. I built a pipeline that runs two local models against each other, then extracts and classifies the output.</p>
       <p class="stack"><span>spiritual bliss attractor</span><span>Ollama</span><span>paired-dialogue harness</span></p>
     </div>
 
@@ -396,7 +396,7 @@
         <div class="yr">2026 →</div>
         <div class="ev">
           <h3>AI safety fellow <span class="where"><a href="https://sparai.org/projects/f26/reccucjQIos5cIK1H/">SPAR</a></span></h3>
-          <p>Fall 2026 cohort, on "Distilling the technical AI safety literature and co-authoring the AI Safety Atlas" with Markov Grey and Charbel-Raphaël Segerie (CeSIA).</p>
+          <p>Fall 2026 cohort, on "Distilling the technical AI safety literature and co-authoring the AI Safety Atlas" with Markov Grey and Charbel-Raphaël Segerie (CeSIA). Survey-style literature reviews published as standalone papers and as Atlas chapters.</p>
         </div>
       </li>
       <li class="mark">
@@ -488,7 +488,7 @@
 (function () {
   var tabs = Array.prototype.slice.call(document.querySelectorAll('[role="tab"]'));
 
-  function select(id, focus) {
+  function select(id, focus, writeHash) {
     tabs.forEach(function (t) {
       var on = t.dataset.panel === id;
       t.setAttribute('aria-selected', on ? 'true' : 'false');
@@ -497,18 +497,24 @@
       if (panel) panel.hidden = !on;
       if (on && focus) t.focus();
     });
-    try { history.replaceState(null, '', '#' + id); } catch (e) {}
+    // only on a real click or keypress: the first tab is the default view, so it needs no fragment
+    if (writeHash) {
+      try {
+        var url = (id === tabs[0].dataset.panel) ? location.pathname + location.search : '#' + id;
+        history.replaceState(null, '', url);
+      } catch (e) {}
+    }
   }
 
   tabs.forEach(function (t, i) {
-    t.addEventListener('click', function () { select(t.dataset.panel); });
+    t.addEventListener('click', function () { select(t.dataset.panel, false, true); });
     t.addEventListener('keydown', function (e) {
       var next = null;
       if (e.key === 'ArrowRight') next = tabs[(i + 1) % tabs.length];
       if (e.key === 'ArrowLeft')  next = tabs[(i - 1 + tabs.length) % tabs.length];
       if (e.key === 'Home')       next = tabs[0];
       if (e.key === 'End')        next = tabs[tabs.length - 1];
-      if (next) { e.preventDefault(); select(next.dataset.panel, true); }
+      if (next) { e.preventDefault(); select(next.dataset.panel, true, true); }
     });
   });
 
